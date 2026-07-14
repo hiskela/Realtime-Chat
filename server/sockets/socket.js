@@ -2,9 +2,8 @@ const onlineUsers = new Map();
 
 const socketHandler = (io) => {
   io.on("connection", (socket) => {
-    console.log(`✅ User connected: ${socket.id}`);
+    console.log(`User connected: ${socket.id}`);
 
-    // Register user after login
     socket.on("setup", (userId) => {
       if (!userId) return;
 
@@ -13,8 +12,6 @@ const socketHandler = (io) => {
       socket.join(userId);
 
       io.emit("online-users", [...onlineUsers.keys()]);
-
-      console.log(`User ${userId} is online`);
     });
 
     socket.on("disconnect", () => {
@@ -27,7 +24,7 @@ const socketHandler = (io) => {
 
       io.emit("online-users", [...onlineUsers.keys()]);
 
-      console.log(`❌ User disconnected: ${socket.id}`);
+      console.log(`User disconnected: ${socket.id}`);
     });
   });
 };

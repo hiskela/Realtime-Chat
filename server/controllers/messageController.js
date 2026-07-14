@@ -1,6 +1,6 @@
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
-
+import {getIO} from "../socket.js"
 export const sendMessage = async (req, res) => {
   try {
     const { conversationId, text, image } = req.body;
@@ -38,7 +38,16 @@ export const sendMessage = async (req, res) => {
 
     conversation.lastMessage = message._id;
     await conversation.save();
+const io = getIO();
 
+const receiverId = conversation.participants.find(
+  (id) => id.toString() !== req.user._id.toString()
+);
+
+io.to(receiverId.toString()).emit(
+  "receive-message",
+  populatedMessage
+);
     const populatedMessage = await Message.findById(message._id)
       .populate("sender", "name email avatar");
 

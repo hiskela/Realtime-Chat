@@ -13,6 +13,7 @@ import messageRoutes from "./routes/messageRoutes.js";
 
 import errorHandler from "./middleware/errorMiddleware.js";
 import socketHandler from "./sockets/socket.js";
+import { initializeSocket } from "./socket.js";
 
 dotenv.config();
 
