@@ -1,86 +1,107 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../services/authService";
+import { registerUser } from "../services/auth.service";
+import toast from "react-hot-toast";
 
 function Register() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
   });
 
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
-    }));
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setError("");
 
     try {
       setLoading(true);
 
       await registerUser(formData);
 
-      alert("Registration successful");
+      toast.success("Account created successfully");
 
-      navigate("/");
-    } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      navigate("/login");
+    } catch (error) {
+      const message = error.response?.data?.message || "Registration failed";
+
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-slate-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleSubmit}
-        className="bg-white w-96 rounded-xl shadow-lg p-8"
+        className="bg-white w-full max-w-md p-8 rounded-xl shadow"
       >
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          Register
-        </h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">Create Account</h1>
+
+        {error && (
+          <p className="bg-red-100 text-red-600 p-3 rounded mb-4">{error}</p>
+        )}
 
         <input
-          className="w-full border p-3 rounded mb-4"
-          placeholder="Name"
           name="name"
+          placeholder="Full name"
+          value={formData.name}
           onChange={handleChange}
+          className="w-full border p-3 rounded mb-3"
         />
 
         <input
-          className="w-full border p-3 rounded mb-4"
-          placeholder="Email"
-          type="email"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+          className="w-full border p-3 rounded mb-3"
+        />
+
+        <input
           name="email"
+          type="email"
+          placeholder="Email"
+          value={formData.email}
           onChange={handleChange}
+          className="w-full border p-3 rounded mb-3"
         />
 
         <input
-          className="w-full border p-3 rounded mb-4"
-          placeholder="Password"
-          type="password"
           name="password"
+          type="password"
+          placeholder="Password"
+          value={formData.password}
           onChange={handleChange}
+          className="w-full border p-3 rounded mb-4"
         />
 
-        <button className="w-full bg-green-600 text-white py-3 rounded">
+        <button
+          disabled={loading}
+          className="w-full bg-blue-600 text-white p-3 rounded"
+        >
           {loading ? "Creating..." : "Register"}
         </button>
 
         <p className="text-center mt-5">
-          Already have an account?{" "}
-          <Link
-            className="text-blue-600"
-            to="/"
-          >
+          Already have account?{" "}
+          <Link to="/login" className="text-blue-600">
             Login
           </Link>
         </p>
