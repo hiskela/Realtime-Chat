@@ -1,9 +1,11 @@
+let io;
+
 const onlineUsers = new Map();
 
-const socketHandler = (io) => {
-  io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.id}`);
+const initializeSocket = (socketServer) => {
+  io = socketServer;
 
+  io.on("connection", (socket) => {
     socket.on("setup", (userId) => {
       if (!userId) return;
 
@@ -23,10 +25,12 @@ const socketHandler = (io) => {
       }
 
       io.emit("online-users", [...onlineUsers.keys()]);
-
-      console.log(`User disconnected: ${socket.id}`);
     });
   });
 };
 
-export default socketHandler;
+export const getIO = () => io;
+
+export const getOnlineUsers = () => onlineUsers;
+
+export default initializeSocket;
