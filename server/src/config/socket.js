@@ -6,6 +6,8 @@ const initializeSocket = (socketServer) => {
   io = socketServer;
 
   io.on("connection", (socket) => {
+    console.log("Socket connected:", socket.id);
+
     socket.on("setup", (userId) => {
       if (!userId) return;
 
@@ -13,21 +15,36 @@ const initializeSocket = (socketServer) => {
 
       socket.join(userId);
 
-      io.emit("online-users", [...onlineUsers.keys()]);
+      io.emit(
+        "online-users",
+        [...onlineUsers.keys()]
+      );
     });
 
+
     socket.on("disconnect", () => {
+
       for (const [userId, socketId] of onlineUsers.entries()) {
+
         if (socketId === socket.id) {
+
           onlineUsers.delete(userId);
+
           break;
         }
       }
 
-      io.emit("online-users", [...onlineUsers.keys()]);
+
+      io.emit(
+        "online-users",
+        [...onlineUsers.keys()]
+      );
+
     });
+
   });
 };
+
 
 export const getIO = () => io;
 

@@ -1,6 +1,6 @@
 let io;
 
-export const initializeSocket = (socketServer) => {
+ const initializeSocket = (socketServer) => {
   io = socketServer;
 };
 
@@ -11,3 +11,4 @@ export const getIO = () => {
 
   return io;
 };
+export default initializeSocket;

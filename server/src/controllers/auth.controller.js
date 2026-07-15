@@ -1,85 +1,158 @@
 import User from "../models/User.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import generateToken from "../utils/generateToken.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
-export const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
+export const register = asyncHandler(async (req, res) => {
 
-    if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
-    }
+  const {
+    name,
+    username,
+    email,
+    password
+  } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
+  const existingUser = await User.findOne({
+    $or: [
+      { username },
+      { email }
+    ]
+  });
+
+
+  if (existingUser) {
+
+    return res.status(409).json({
+      success: false,
+      message: "Username or email already exists"
     });
 
-    res.status(201).json({
-      message: "User registered successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
   }
-};
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(400).json({
-        message: "Invalid email or password",
-      });
-    }
+  const user = await User.create({
+    name,
+    username,
+    email,
+    password
+  });
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordCorrect) {
-      return res.status(400).json({
-        message: "Invalid email or password",
-      });
-    }
+  const token = generateToken(user._id);
 
-    const token = jwt.sign(
-      {
-        userId: user._id,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      },
-    );
 
-    res.status(200).json({
-      message: "Login successful",
+  res.status(201).json({
 
-      token,
+    success: true,
+
+    message: "Account created successfully",
+
+    data: {
 
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
+        username: user.username,
+        email: user.email
       },
+
+      token
+
+    }
+
+  });
+
+});
+
+
+
+export const login = asyncHandler(async (req, res) => {
+
+  const {
+    username,
+    password
+  } = req.body;
+
+
+  const user = await User.findOne({
+    username
+  }).select("+password");
+
+
+  if (!user) {
+
+    return res.status(401).json({
+
+      success: false,
+
+      message: "Invalid username or password"
+
     });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+
   }
-};
+
+
+  const isPasswordCorrect =
+    await user.comparePassword(password);
+
+
+  if (!isPasswordCorrect) {
+
+    return res.status(401).json({
+
+      success: false,
+
+      message: "Invalid username or password"
+
+    });
+
+  }
+
+
+  const token = generateToken(user._id);
+
+
+  res.status(200).json({
+
+    success: true,
+
+    message: "Login successful",
+
+    data: {
+
+      user: {
+
+        id: user._id,
+
+        name: user.name,
+
+        username: user.username,
+
+        email: user.email
+
+      },
+
+      token
+
+    }
+
+  });
+
+});
+
+
+
+export const getMe = asyncHandler(async (req, res) => {
+
+  res.status(200).json({
+
+    success: true,
+
+    data: {
+      user: req.user
+    }
+
+  });
+
+});
