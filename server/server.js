@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
-
 import app from "./src/app.js";
 import connectDB from "./src/config/db.js";
 import initializeSocket from "./src/config/socket.js";

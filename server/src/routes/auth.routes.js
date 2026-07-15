@@ -3,14 +3,15 @@ import express from "express";
 import {
   register,
   login,
+  logout,
   getMe
 } from "../controllers/auth.controller.js";
 
 import validate from "../middleware/validate.middleware.js";
 
 import {
-  registerSchema,
-  loginSchema
+  registerValidator,
+  loginValidator
 } from "../validators/auth.validator.js";
 
 import protect from "../middleware/auth.middleware.js";
@@ -22,7 +23,7 @@ const router = express.Router();
 
 router.post(
   "/register",
-  validate(registerSchema),
+  validate(registerValidator),
   register
 );
 
@@ -30,8 +31,15 @@ router.post(
 
 router.post(
   "/login",
-  validate(loginSchema),
+  validate(loginValidator),
   login
+);
+
+
+
+router.post(
+  "/logout",
+  logout
 );
 
 

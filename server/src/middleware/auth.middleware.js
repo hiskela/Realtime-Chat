@@ -1,42 +1,65 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import AppError from "../utils/AppError.js";
 
-const protect = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer")) {
-      return res.status(401).json({
-        success: false,
+const protect = async(req,res,next)=>{
 
-        message: "Not authorized",
-      });
-    }
 
-    const token = authHeader.split(" ")[1];
+  const token =
+    req.cookies.token;
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id);
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
+  if(!token){
 
-        message: "User not found",
-      });
-    }
+    return next(
+      new AppError(
+        "Authentication required",
+        401
+      )
+    );
 
-    req.user = user;
-
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-
-      message: "Invalid token",
-    });
   }
+
+
+
+  const decoded =
+    jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+
+
+  const user =
+    await User.findById(
+      decoded.id
+    );
+
+
+
+  if(!user){
+
+    return next(
+      new AppError(
+        "User not found",
+        401
+      )
+    );
+
+  }
+
+
+
+  req.user=user;
+
+
+  next();
+
+
 };
+
+
 
 export default protect;

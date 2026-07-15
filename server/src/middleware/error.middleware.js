@@ -1,10 +1,29 @@
-const errorMiddleware = (err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
+const errorMiddleware = (
+  error,
+  req,
+  res,
+  next
+)=>{
 
-  res.status(statusCode).json({
-    success: false,
-    message: err.message || "Internal Server Error",
+
+  console.error(error);
+
+
+  res.status(
+    error.statusCode || 500
+  )
+  .json({
+
+    success:false,
+
+    message:
+      error.message ||
+      "Internal server error"
+
   });
+
+
 };
+
 
 export default errorMiddleware;

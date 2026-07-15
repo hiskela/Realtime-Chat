@@ -6,38 +6,28 @@ import {
 } from "react";
 
 import {
-  getCurrentUser
+  getCurrentUser,
+  logoutUser
 } from "../services/auth.service";
 
 
-const AuthContext = createContext();
+const AuthContext=createContext();
 
 
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider=({children})=>{
 
-  const [user,setUser] = useState(null);
 
-  const [loading,setLoading] = useState(true);
+  const [user,setUser]=useState(null);
+
+  const [loading,setLoading]=useState(true);
 
 
 
   useEffect(()=>{
 
-    const checkUser = async()=>{
 
-      const token =
-        localStorage.getItem("token");
-
-
-      if(!token){
-
-        setLoading(false);
-
-        return;
-
-      }
-
+    const checkAuth=async()=>{
 
       try{
 
@@ -45,12 +35,14 @@ export const AuthProvider = ({children}) => {
           await getCurrentUser();
 
 
-        setUser(response.data.user);
+        setUser(
+          response.data.user
+        );
 
 
       }catch(error){
 
-        localStorage.removeItem("token");
+        setUser(null);
 
       }
       finally{
@@ -62,29 +54,18 @@ export const AuthProvider = ({children}) => {
     };
 
 
-    checkUser();
+    checkAuth();
 
 
   },[]);
 
 
 
-  const login = (data)=>{
-
-    localStorage.setItem(
-      "token",
-      data.token
-    );
-
-    setUser(data.user);
-
-  };
 
 
+  const logout=async()=>{
 
-  const logout = ()=>{
-
-    localStorage.removeItem("token");
+    await logoutUser();
 
     setUser(null);
 
@@ -97,9 +78,9 @@ export const AuthProvider = ({children}) => {
     <AuthContext.Provider
       value={{
         user,
-        loading,
-        login,
-        logout
+        setUser,
+        logout,
+        loading
       }}
     >
 
@@ -113,7 +94,7 @@ export const AuthProvider = ({children}) => {
 
 
 
-export const useAuth = ()=>{
+export const useAuth=()=>{
 
   return useContext(AuthContext);
 

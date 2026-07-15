@@ -1,45 +1,44 @@
 import { z } from "zod";
 
 
-export const registerSchema = z.object({
+export const registerValidator = z.object({
 
-  name: z
+  name:z
     .string()
-    .min(2)
-    .max(50),
+    .min(2,"Name must contain at least 2 characters"),
 
 
-  username: z
+  username:z
     .string()
-    .min(3)
-    .max(20)
+    .min(3,"Username must contain at least 3 characters")
+    .max(20,"Username too long")
     .regex(
       /^[a-zA-Z0-9_]+$/,
       "Username can only contain letters, numbers and underscore"
     ),
 
 
-  email: z
+  email:z
     .string()
-    .email(),
+    .email("Invalid email address"),
 
 
-  password: z
+  password:z
     .string()
-    .min(8),
+    .min(8,"Password must contain at least 8 characters")
 
 });
 
 
-export const loginSchema = z.object({
+export const loginValidator = z.object({
 
-  username: z
+  username:z
     .string()
-    .min(3),
+    .min(3,"Username is required"),
 
 
-  password: z
+  password:z
     .string()
-    .min(8),
+    .min(8,"Password is required")
 
 });

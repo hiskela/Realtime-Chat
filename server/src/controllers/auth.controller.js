@@ -1,9 +1,21 @@
 import User from "../models/User.js";
-import generateToken from "../utils/generateToken.js";
+import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import generateToken from "../utils/generateToken.js";
 
 
-export const register = asyncHandler(async (req, res) => {
+const cookieOptions = {
+  httpOnly:true,
+  secure:false,
+  sameSite:"lax",
+  maxAge:7 * 24 * 60 * 60 * 1000
+};
+
+
+
+export const register = asyncHandler(
+async(req,res)=>{
+
 
   const {
     name,
@@ -13,61 +25,91 @@ export const register = asyncHandler(async (req, res) => {
   } = req.body;
 
 
+
   const existingUser = await User.findOne({
-    $or: [
-      { username },
-      { email }
+
+    $or:[
+      {
+        username
+      },
+      {
+        email
+      }
     ]
+
   });
 
 
-  if (existingUser) {
 
-    return res.status(409).json({
-      success: false,
-      message: "Username or email already exists"
-    });
+  if(existingUser){
+
+    throw new AppError(
+      "Username or email already exists",
+      409
+    );
 
   }
 
 
+
   const user = await User.create({
+
     name,
     username,
     email,
     password
+
   });
 
 
-  const token = generateToken(user._id);
+
+  const token = generateToken(
+    user._id
+  );
+
+
+  res.cookie(
+    "token",
+    token,
+    cookieOptions
+  );
+
 
 
   res.status(201).json({
 
-    success: true,
+    success:true,
 
-    message: "Account created successfully",
+    message:"Account created successfully",
 
-    data: {
+    data:{
 
-      user: {
-        id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email
-      },
+      user:{
 
-      token
+        id:user._id,
+
+        name:user.name,
+
+        username:user.username,
+
+        email:user.email
+
+      }
 
     }
 
   });
 
+
 });
 
 
 
-export const login = asyncHandler(async (req, res) => {
+
+
+export const login = asyncHandler(
+async(req,res)=>{
+
 
   const {
     username,
@@ -75,84 +117,125 @@ export const login = asyncHandler(async (req, res) => {
   } = req.body;
 
 
+
   const user = await User.findOne({
     username
-  }).select("+password");
+  })
+  .select("+password");
 
 
-  if (!user) {
 
-    return res.status(401).json({
+  if(!user){
 
-      success: false,
-
-      message: "Invalid username or password"
-
-    });
-
-  }
-
-
-  const isPasswordCorrect =
-    await user.comparePassword(password);
-
-
-  if (!isPasswordCorrect) {
-
-    return res.status(401).json({
-
-      success: false,
-
-      message: "Invalid username or password"
-
-    });
+    throw new AppError(
+      "Invalid username or password",
+      401
+    );
 
   }
 
 
-  const token = generateToken(user._id);
+
+  const passwordMatch =
+    await user.comparePassword(
+      password
+    );
+
+
+
+  if(!passwordMatch){
+
+    throw new AppError(
+      "Invalid username or password",
+      401
+    );
+
+  }
+
+
+
+  const token = generateToken(
+    user._id
+  );
+
+
+
+  res.cookie(
+    "token",
+    token,
+    cookieOptions
+  );
+
 
 
   res.status(200).json({
 
-    success: true,
+    success:true,
 
-    message: "Login successful",
+    message:"Login successful",
 
-    data: {
+    data:{
 
-      user: {
+      user:{
 
-        id: user._id,
+        id:user._id,
 
-        name: user.name,
+        name:user.name,
 
-        username: user.username,
+        username:user.username,
 
-        email: user.email
+        email:user.email
 
-      },
-
-      token
+      }
 
     }
 
   });
+
 
 });
 
 
 
-export const getMe = asyncHandler(async (req, res) => {
+
+
+export const logout = asyncHandler(
+async(req,res)=>{
+
+
+  res.clearCookie(
+    "token"
+  );
+
 
   res.status(200).json({
 
-    success: true,
+    success:true,
 
-    data: {
-      user: req.user
+    message:"Logged out successfully"
+
+  });
+
+
+});
+
+
+
+
+
+export const getMe = asyncHandler(
+async(req,res)=>{
+
+
+  res.status(200).json({
+
+    success:true,
+
+    data:{
+      user:req.user
     }
 
   });
+
 
 });

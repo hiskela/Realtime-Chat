@@ -37,11 +37,28 @@ function Register() {
       toast.success("Account created successfully");
 
       navigate("/login");
-    } catch (error) {
-      const message = error.response?.data?.message || "Registration failed";
+    } 
+catch(error){
 
-      setError(message);
-    } finally {
+  const response = error.response?.data;
+
+
+  if(response?.errors?.length){
+
+    setError(
+      response.errors[0].message
+    );
+
+  }else{
+
+    setError(
+      response?.message ||
+      "Registration failed"
+    );
+
+  }
+
+} finally {
       setLoading(false);
     }
   };
