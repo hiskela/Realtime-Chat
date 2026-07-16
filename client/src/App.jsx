@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
           path="/chat"
           element={
             <ProtectedRoute>
-              <div className="p-10 text-3xl">Chat Application</div>
+<Chat/>
+
             </ProtectedRoute>
           }
         />

@@ -1,13 +1,14 @@
-import { useAuth } from "../context/AuthContext";
+import Sidebar from "../components/layout/Sidebar";
+import ChatWindow from "../components/chat/ChatWindow";
 
 function Chat() {
-  const { user } = useAuth();
-
   return (
-    <div className="h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold">
-        Welcome {user?.name}
-      </h1>
+    <div className="h-screen flex bg-gray-100">
+
+      <Sidebar />
+
+      <ChatWindow />
+
     </div>
   );
 }
