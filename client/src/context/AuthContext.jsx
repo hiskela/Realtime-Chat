@@ -63,14 +63,20 @@ export const AuthProvider=({children})=>{
 
 
 
-  const logout=async()=>{
+ const logout=async()=>{
+
+  try{
 
     await logoutUser();
 
+  }
+  finally{
+
     setUser(null);
 
-  };
+  }
 
+};
 
 
   return (

@@ -1,28 +1,32 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-import Login from "./pages/Login";
+import { Toaster } from "react-hot-toast";
+
 import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
+    <>
+      <Toaster position="top-right" />
 
-      <Route path="/login" element={<Login />} />
+      <Routes>
+        <Route path="/register" element={<Register />} />
 
-      <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
 
-      <Route
-        path="/chat"
-        element={
-          <ProtectedRoute>
-            <h1 className="text-4xl text-center mt-20">Chat Application</h1>
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <div className="p-10 text-3xl">Chat Application</div>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
   );
 }
 
